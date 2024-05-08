@@ -25,7 +25,22 @@ enum ToastGravity {
   CENTER_LEFT,
   CENTER_RIGHT,
   SNACKBAR,
-  NONE
+  NONE,
+  CUSTOM,
+}
+
+class Position {
+  final double top;
+  final double bottom;
+  final double left;
+  final double right;
+
+  Position({
+    required this.top,
+    required this.bottom,
+    required this.left,
+    required this.right,
+  });
 }
 
 /// Plugin to show a toast message on screen
@@ -227,6 +242,7 @@ class FToast {
     Duration fadeDuration = const Duration(milliseconds: 350),
     bool ignorePointer = false,
     bool isDismissable = false,
+    Position? position, // ToastGravity.CUSTOM인 경우, position 값을 채워야한다
   }) {
     if (context == null)
       throw ("Error: Context is null, Please call init(context) before showing toast.");
@@ -257,7 +273,11 @@ class FToast {
     _overlayQueue.add(_ToastEntry(
         entry: newEntry, duration: toastDuration, fadeDuration: fadeDuration));
     if (_timer == null) _showOverlay();
+
+    if (position != null) position = position;
   }
+
+  late Position position;
 
   /// _getPostionWidgetBasedOnGravity generates [Positioned] [Widget]
   /// based on the gravity  [ToastGravity] provided by the user in
@@ -265,7 +285,7 @@ class FToast {
   _getPostionWidgetBasedOnGravity(Widget child, ToastGravity? gravity) {
     switch (gravity) {
       case ToastGravity.TOP:
-        return Positioned(top: 100.0, left: 24.0, right: 24.0, child: child);
+        return Positioned(top: 54.0, left: 24.0, right: 24.0, child: child);
       case ToastGravity.TOP_LEFT:
         return Positioned(top: 100.0, left: 24.0, child: child);
       case ToastGravity.TOP_RIGHT:
@@ -286,6 +306,13 @@ class FToast {
             bottom: MediaQuery.of(context!).viewInsets.bottom,
             left: 0,
             right: 0,
+            child: child);
+      case ToastGravity.CUSTOM:
+        return Positioned(
+            top: position.top,
+            left: position.left,
+            right: position.right,
+            bottom: position.bottom,
             child: child);
       case ToastGravity.NONE:
         return Positioned.fill(child: child);
@@ -438,3 +465,4 @@ class ToastStateFulState extends State<_ToastStateFul>
     );
   }
 }
+
