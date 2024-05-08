@@ -246,6 +246,7 @@ class FToast {
   }) {
     if (context == null)
       throw ("Error: Context is null, Please call init(context) before showing toast.");
+
     Widget newChild = _ToastStateFul(
         child,
         toastDuration,
@@ -268,21 +269,17 @@ class FToast {
     OverlayEntry newEntry = OverlayEntry(builder: (context) {
       if (positionedToastBuilder != null)
         return positionedToastBuilder(context, newChild);
-      return _getPostionWidgetBasedOnGravity(newChild, gravity);
+      return _getPostionWidgetBasedOnGravity(newChild, gravity, position);
     });
     _overlayQueue.add(_ToastEntry(
         entry: newEntry, duration: toastDuration, fadeDuration: fadeDuration));
     if (_timer == null) _showOverlay();
-
-    if (position != null) position = position;
   }
-
-  late Position position;
 
   /// _getPostionWidgetBasedOnGravity generates [Positioned] [Widget]
   /// based on the gravity  [ToastGravity] provided by the user in
   /// [showToast]
-  _getPostionWidgetBasedOnGravity(Widget child, ToastGravity? gravity) {
+  _getPostionWidgetBasedOnGravity(Widget child, ToastGravity? gravity, Position? position) {
     switch (gravity) {
       case ToastGravity.TOP:
         return Positioned(top: 54.0, left: 24.0, right: 24.0, child: child);
@@ -308,12 +305,15 @@ class FToast {
             right: 0,
             child: child);
       case ToastGravity.CUSTOM:
-        return Positioned(
-            top: position.top,
-            left: position.left,
-            right: position.right,
-            bottom: position.bottom,
-            child: child);
+        return position != null
+            ? Positioned(
+                top: position.top,
+                left: position.left,
+                right: position.right,
+                bottom: position.bottom,
+                child: child)
+            : Positioned.fill(child: child);
+
       case ToastGravity.NONE:
         return Positioned.fill(child: child);
       case ToastGravity.BOTTOM:
@@ -465,4 +465,3 @@ class ToastStateFulState extends State<_ToastStateFul>
     );
   }
 }
-
